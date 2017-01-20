@@ -31,7 +31,13 @@
           <img src={{tweet.picture_url}}>
           <div class="content">
             <p class="by"><a href="/users/{{tweet.name}}">{{tweet.name}}</a></p>
-            <p><a href="/tweets/{{tweet.id}}">{{tweet.content}}</a></p>
+            <p>{{tweet.content}}</p>
+            <form action="/tweets" method="POST">
+           
+              <input type="hidden" name='tweetz_id' value="{{tweet.id}}"/>
+
+              <input class='btn btn-xs btn-danger' type="submit" value="Delete Tweet" />
+        </form>
           </div>
         </div>
       {% endfor %}

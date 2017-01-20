@@ -8,7 +8,7 @@ module.exports = io => {
 
   // a reusable function
   const respondWithAllTweets = (req, res, next) => {
-    client.query('SELECT * FROM tweets INNER JOIN users ON tweets.user_id=users.id', function (err, result) {
+    client.query('SELECT * FROM users INNER JOIN tweets ON tweets.user_id=users.id', function (err, result) {
       if (err) return next(err); // pass errors to Express
       var tweets = result.rows;
       res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
@@ -41,28 +41,33 @@ module.exports = io => {
 
   // create a new tweet
   router.post('/tweets', (req, res, next) => {
-    var username = req.body.name
-    var text = req.body.text
-  
-
-    client.query('SELECT id FROM users WHERE name=$1',[username],function(err,result){
-        if(result.rows[0]) {
-          var userID =  result.rows[0].id
-          client.query('INSERT INTO tweets (user_id,content) VALUES($1, $2)',[userID,text],function(err,result){
-            console.log(err)
-          });
-        }else {
-          client.query('INSERT INTO users (name, picture_url) VALUES($1,$2)',[username, 'http://i.imgur.com/XDjBjfu.jpg'], function(err,result) {
-            client.query('SELECT id FROM users WHERE name=$1',[username],function(err,result){
-                var userID =  result.rows[0].id
+    if(req.body.tweetz_id){
+      var tweetz_id = req.body.tweetz_id
+      client.query('DELETE FROM tweets WHERE tweets.id=$1',[tweetz_id],function(err,result){
+                console.log(err)
+      });
+    }else {
+        var username = req.body.name
+        var text = req.body.text
+        client.query('SELECT id FROM users WHERE name=$1',[username],function(err,result){
+            if(result.rows[0]) {
+              var userID =  result.rows[0].id
               client.query('INSERT INTO tweets (user_id,content) VALUES($1, $2)',[userID,text],function(err,result){
+                console.log(err)
               });
-            });
-          });
-        }
-    });
-    // io.sockets.emit('new_tweet', newTweet);
-    res.redirect('/');
+            }else {
+              client.query('INSERT INTO users (name, picture_url) VALUES($1,$2)',[username, 'http://i.imgur.com/XDjBjfu.jpg'], function(err,result) {
+                client.query('SELECT id FROM users WHERE name=$1',[username],function(err,result){
+                    var userID =  result.rows[0].id
+                  client.query('INSERT INTO tweets (user_id,content) VALUES($1, $2)',[userID,text],function(err,result){
+                  });
+                });
+              });
+            }
+        });
+        // io.sockets.emit('new_tweet', newTweet);
+      }
+        res.redirect('/');
   });
 
 
