@@ -11,6 +11,7 @@ module.exports = io => {
     client.query('SELECT * FROM users INNER JOIN tweets ON tweets.user_id=users.id', function (err, result) {
       if (err) return next(err); // pass errors to Express
       var tweets = result.rows;
+      console.log(tweets)
       res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
     });
   }
