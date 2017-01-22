@@ -1,9 +1,11 @@
 var Sequelize = require('sequelize');
-var db = new Sequelize('postgres://localhost:5432/wikistack', {logging: false});;
+var db = new Sequelize('postgres://localhost:5432/wikistack', {logging: true});;
 
 var Page = db.define('page', {
     title: {
-        type: Sequelize.STRING, allowNull: false, len: [1,50]
+        type: Sequelize.STRING, 
+        allowNull: false, 
+        len: [1,50]
     },
     urlTitle: {
         type: Sequelize.STRING, 
@@ -18,9 +20,17 @@ var Page = db.define('page', {
     status: {
         type: Sequelize.ENUM('open', 'closed'), 
         defaultValue: 'open'
-     }
+  //    },
+  //   setterMethods : {
+  //   route : function(value)  { this.setDataValue('route', value.replace(/\s+/g, '_')) }
+  // }, 
+  //  getterMethods : {
+  //   route : function(value)  { return this.getDataValue('urlTitle') }
+   }
 
 });
+
+
 
 var User = db.define('user', {
     name: {
@@ -30,6 +40,23 @@ var User = db.define('user', {
         type: Sequelize.STRING, allowNull: false, isEmail:true, len: [1,40]
     }
 });
+
+// Method 2 via the .hook() method
+Page.hook('beforeValidate', function(page, options) {
+  page.urlTitle = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
+})
+
+
+// Method 3 via the direct method
+User.beforeCreate(function(user, options) {
+  return hashPassword(user.password).then(function (hashedPw) {
+    user.password = hashedPw;
+  });
+})
+
+User.afterValidate('myHookAfter', function(user, options, fn) {
+  user.username = 'Toni'
+})
 
 module.exports = {
   Page: Page,
