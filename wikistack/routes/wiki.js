@@ -6,13 +6,14 @@ var User = models.User;
 
 
 router.get('/', function(req, res, next) {
-	res.redirect('/');
+	
+	Page.findAll()
+	.then(function(allPages){
+		var pages= allPages.map(page=>page.dataValues);
+		res.render('index', {pages:pages});
+	})
+	.catch(next);
 });
-
-// router.post('/', function(req, res, next) {
-// 	console.log('req.body',req.body)
-//  res.send({request:req.body})
-// });
 
 
 router.get('/add', function(req, res) {
@@ -32,7 +33,6 @@ router.get('/:urlTitle', function (req, res, next) {
 		res.render('wikipage', {page:page});
 	})
 	.catch(next);
-
 });
 
 router.post('/', function(req, res, next) {
