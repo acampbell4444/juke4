@@ -35,15 +35,35 @@ router.get('/:urlTitle', function (req, res, next) {
 	.catch(next);
 });
 
-router.post('/', function(req, res, next) {
-	console.log(req.body)
-	var page = Page.build({
-		title: req.body.title,
-		content: req.body.page_content
-	});
-	page.save().then(function(savedPage){
-  		res.redirect(savedPage.urlTitle); // route virtual FTW
-  }).catch(next);
+router.post('/', function(req, res, next) {	
+
+
+	User.findOrCreate({
+		where: {
+			name: req.body.author_name,
+			email: req.body.author_email
+		}
+	})
+	.then(function (values) {
+		var user = values[0];
+		console.log('uz',user.id)
+		var page = Page.build({
+			title: req.body.title,
+			content: req.body.page_content
+		});
+
+		return page.save().then(function (page) {
+    		return page.setAuthor(user);
+  		});
+
+	})
+	.then(function (page) {
+		console.log('sdfjsdkjfklasjdflsjfklsa', page.urlTitle)
+		res.redirect(page.urlTitle);
+	})
+	.catch(next);
+
+
 });
 
 module.exports = router;

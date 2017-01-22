@@ -48,15 +48,17 @@ Page.hook('beforeValidate', function(page, options) {
 
 
 // Method 3 via the direct method
-User.beforeCreate(function(user, options) {
-  return hashPassword(user.password).then(function (hashedPw) {
-    user.password = hashedPw;
-  });
-})
+// User.beforeCreate(function(user, options) {
+//   return hashPassword(user.password).then(function (hashedPw) {
+//     user.password = hashedPw;
+//   });
+// })
 
-User.afterValidate('myHookAfter', function(user, options, fn) {
-  user.username = 'Toni'
-})
+// User.afterValidate('myHookAfter', function(user, options, fn) {
+//   user.username = 'Toni'
+// })
+
+Page.belongsTo(User, { as: 'Author' });
 
 module.exports = {
   Page: Page,
