@@ -1,5 +1,6 @@
 var Sequelize = require('sequelize');
 var db = new Sequelize('postgres://localhost:5432/wikistack', {logging: true});;
+var marked = require('marked');
 
 var Page = db.define('page', {
     title: {
@@ -25,6 +26,11 @@ var Page = db.define('page', {
      type: Sequelize.ARRAY(Sequelize.TEXT),
      defaultValue: [] 
     }
+   }, {
+    getterMethods: {
+        renderedContent: function(){return marked(this.content)}
+    }
+   
 
 });
 

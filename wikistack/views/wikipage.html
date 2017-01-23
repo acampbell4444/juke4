@@ -5,6 +5,8 @@
 <!-- pg: {{pg}} -->
 
 {% block content %}
+{% autoescape false %}
+
 <div class='row' style='padding-top: 20px'>
  	{% for tag in page.tags %}
   		<a href="/wiki/search/?tag_name={{tag}}" class='btn btn-xs btn-warning'>{{tag}}</a>
@@ -14,8 +16,10 @@
 
   <h3>{{page.title}}<small> (<a href="{{page.urlTitle}}/similar">Similar</a>)</small></h3>
   <h4>by <a href="/wiki/users/{{page.Author.id}}">{{page.Author.name}}</a></h4>
+
+  
   <hr/>
-  <div class="page-body">{{page.content}}</div>
+  <div class="page-body">{{page.renderedContent}}</div>
   <hr/>
   <a href="{{page.urlTitle}}/edit" class="btn btn-primary">edit this page</a>
   <a href="{{page.urlTitle}}/delete}}" class="btn btn-danger">delete this page</a>
@@ -27,6 +31,6 @@
 
 
 
-
+{% endautoescape %}
 
 {% endblock %}
