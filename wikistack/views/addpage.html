@@ -27,6 +27,13 @@
 </div>
 
 <div class="row">
+<label for="tags" class="col-sm-2 control-label space">Tags</label><br>
+<div class="col-sm-10">
+  <input name="tags" type="text" class="form-control" placeholder="Tag1, Tag2, etc" />
+</div>
+</div>
+
+<div class="row">
 <label for="page_content" class="col-sm-2 control-label space">Page Content</label><br>
 <div>
   <textarea name=page_content rows=15 class='form-control'></textarea>
@@ -37,9 +44,23 @@
 <input type="radio" name="status" value="open" checked> Open<br>
   <input type="radio" name="status" value="closed"> Closed<br>
  </div>
+
  <div class='row space'>
   <button type="submit" class="btn btn-success">Submit Wiki</button>
 </div>
 
 </form>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

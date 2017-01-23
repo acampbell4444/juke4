@@ -20,17 +20,13 @@ var Page = db.define('page', {
     status: {
         type: Sequelize.ENUM('open', 'closed'), 
         defaultValue: 'open'
-  //    },
-  //   setterMethods : {
-  //   route : function(value)  { this.setDataValue('route', value.replace(/\s+/g, '_')) }
-  // }, 
-  //  getterMethods : {
-  //   route : function(value)  { return this.getDataValue('urlTitle') }
-   }
+    },
+    tags: {
+     type: Sequelize.ARRAY(Sequelize.TEXT),
+     defaultValue: [] 
+    }
 
 });
-
-
 
 var User = db.define('user', {
     name: {

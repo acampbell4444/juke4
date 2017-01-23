@@ -23,8 +23,6 @@ app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
 
 // Where your server and express app are being defined:
-
-
 // ... other stuff
 
 models.User.sync({force:true})
