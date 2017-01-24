@@ -180,7 +180,8 @@ router.post('/:urlTitle/edit', function (req, res, next) {
 				console.log('*****',req.body.title.replace(/\W/g, ''))
 				selectedUser.update({name: req.body.author_name, email: req.body.author_email})
 				.then(function(success) {
-					res.redirect('/wiki/');
+					var address = req.body.title.replace(/\W/g, '')
+					res.redirect('/wiki/'+address);
 				})
 			})
 		})
