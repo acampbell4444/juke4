@@ -45,7 +45,7 @@ var User = db.define('user', {
 
 // Method 2 via the .hook() method
 Page.hook('beforeValidate', function(page, options) {
-  page.urlTitle = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
+  page.urlTitle = page.title.replace(/\s+/g, '_');
 })
 
 

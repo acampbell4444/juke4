@@ -58,21 +58,19 @@ router.get('/add', function(req, res) {
 router.get('/search', function(req, res) {
 	if(Object.keys(req.query).length) {
 		var queryTags = req.query.tag_name.split(',').map(x=>x.trim())
-		console.log('qts', queryTags)
 		Page.findAll({
 	    	// $overlap matches a set of possibilities
 	    	where : {
-	        	tags: {
-	            	$overlap: queryTags
-	        	}
+	    		tags: {
+	    			$overlap: queryTags
+	    		}
 	    	},
 	    	include: [
-				{model: User, as: 'Author'}
-			]  
-		}).then(function(pages){
-			console.log('pages', pages)
-			res.render('tagsearch', { pages: pages });
-		})
+	    	{model: User, as: 'Author'}
+	    	]  
+	    }).then(function(pages){
+	    	res.render('tagsearch', { pages: pages });
+	    })
 	}else {
 		res.render('tagsearch')
 	}
@@ -81,21 +79,29 @@ router.get('/search', function(req, res) {
 router.get('/:urlTitle', function (req, res, next) {
 	Page.findOne({
 		where: {
-			urlTitle: req.params.urlTitle
+			urlTitle: req.params.urlTitle 
 		},
 		include: [
-		{model: User, as: 'Author'}
+			{model: User, as: 'Author'}
 		]
 	})
 	.then(function (page) {
-    // page instance will have a .author property
-    // as a filled in user object ({ name, email })
-    if (page === null) {
+		if(Object.keys(req.query)[0]==='delete_wiki_url') {
+			page.destroy()
+			.then(function(success) {
+				Page.findAll({
+					include: [
+	    				{model: User, as: 'Author'}
+	    			]  
+				})
+				.then(function(pages) {
+					res.render('index', {pages: pages})
+				})
+			})
+	}else if (page === null) {
     	res.status(404).send();
     } else {
-    	res.render('wikipage', {
-    		page: page
-    	});
+    	res.render('wikipage', {page: page})
     }
 })
 	.catch(next);
@@ -110,51 +116,78 @@ router.get('/:urlTitle/similar', function (req, res, next) {
 	})
 	.then(success=>{
 		page=success.dataValues;
-		 console.log('page', page)
 		Page.findAll({
 	    	// $overlap matches a set of possibilities
 	    	where : {
-	        	tags: {
-	            	$overlap: page.tags
-	        	},
-	        	urlTitle: {
-	        		$ne: req.params.urlTitle
-	        	}
+	    		tags: {
+	    			$overlap: page.tags
+	    		},
+	    		urlTitle: {
+	    			$ne: req.params.urlTitle
+	    		}
 	    	},
 	    	include: [
-				{model: User, as: 'Author'}
-			]  
-		}).then(function(pages){
-				var found = pages.length ? true : false;
-    			res.render('similar', { pages: pages, pagesFound: found});
+	    	{model: User, as: 'Author'}
+	    	]  
+	    }).then(function(pages){
+	    	var found = pages.length ? true : false;
+	    	res.render('similar', { pages: pages, pagesFound: found});
+	    })
+	})
+});
+
+router.get('/:urlTitle/edit', function (req, res, next) {
+	Page.findOne({
+		where: {
+			urlTitle: req.params.urlTitle
+		},
+		include: [
+			{model: User, as: 'Author'}
+		]
+	})
+	.then(page=>{
+		res.render('editpage', {page:page});
+	})
+});
+
+router.post('/:urlTitle/edit', function (req, res, next) {
+	console.log('params',req.params.urlTitle)
+	console.log(req.body)
+
+	var selectedPage;
+	var selectedUser;
+	
+	Page.findOne({
+		where: {
+			urlTitle: req.params.urlTitle
+		},
+		include: [
+			{model: User, as: 'Author'}
+		]
+	})
+	.then(page=>{
+		selectedPage = page;
+		User.findOne({
+			where: {
+				id: page.AuthorId
+			}
+		})
+		.then(function(user){
+			selectedUser = user;
+			page.update({title: req.body.title,content: req.body.page_content, urlTitle: req.body.title.replace(/\W/g, ''), tags: req.body.tags.split(',')})
+			.then(function(success) {
+				console.log('####', req.body.title)
+				console.log('*****',req.body.title.replace(/\W/g, ''))
+				selectedUser.update({name: req.body.author_name, email: req.body.author_email})
+				.then(function(success) {
+					res.redirect('/wiki/');
+				})
+			})
 		})
 	})
-
-
-	
-	
-
-	// Page.findAll({
-	//     	// $overlap matches a set of possibilities
-	//     	where : {
-	//         	tags: {
-	//             	$overlap: queryTags
-	//         	}
-	//     	},
-	//     	include: [
-	// 			{model: User, as: 'Author'}
-	// 		]  
-	// 	}).then(function(pages){
-	// 		console.log('pages', pages)
-	// 		res.render('tagsearch', { pages: pages });
-	// 	})
-
-
-
-
-
-
 });
+
+
 
 router.post('/', function(req, res, next) {	
 	
@@ -171,7 +204,7 @@ router.post('/', function(req, res, next) {
 			title: req.body.title,
 			content: req.body.page_content,
 			tags: tags
-		});
+			});
 		return page.save().then(function (page) {
 			return page.setAuthor(user);
 		});
@@ -181,6 +214,10 @@ router.post('/', function(req, res, next) {
 	})
 	.catch(next);
 });
+
+
+
+
 
 module.exports = router;
 

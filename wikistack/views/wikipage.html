@@ -21,8 +21,15 @@
   <hr/>
   <div class="page-body">{{page.renderedContent}}</div>
   <hr/>
-  <a href="{{page.urlTitle}}/edit" class="btn btn-primary">edit this page</a>
-  <a href="{{page.urlTitle}}/delete}}" class="btn btn-danger">delete this page</a>
+  <a href="{{page.urlTitle}}/edit" class="btn btn-primary" value="{{page.urlTitle}}">edit this page</a>
+  
+<form method="DELETE" action="/wiki/{{page.urlTitle}}">
+  <input name="delete_wiki_url" input type="hidden" value="{{page.urlTitle}}"/>
+  <button type="submit" class="btn btn-danger">Delete This Wiki</button>
+</form>
+  
+
+
   <hr/>
 
 
