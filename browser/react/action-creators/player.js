@@ -2,10 +2,18 @@ import {
   START_PLAYING,
   STOP_PLAYING,
   SET_CURRENT_SONG,
-  SET_LIST
+  SET_LIST,
+  SET_PROGRESS
 } from '../constants';
 import AUDIO from '../audio';
 import {skip} from '../utils';
+
+export function setProgress (progress) {
+  return {
+    type: SET_PROGRESS,
+    progress
+  };
+}
 
 export function startPlaying () {
   return {
