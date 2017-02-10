@@ -68,13 +68,15 @@ export function startSong (song, list) {
 }
 
 export function next () {
-  return (dispatch) => {
-    dispatch(startSong(...skip(1, this.state)));
+  return (dispatch, getState) => {
+    const state = getState();
+    dispatch(startSong(...skip(1, state.player)));
   };
 }
 
 export function prev () {
-  return (dispatch) => {
-    dispatch(startSong(...skip(-1, this.state)));
+  return (dispatch, getState) => {
+    const state = getState();
+    dispatch(startSong(...skip(-1, state.player)));
   };
 }
