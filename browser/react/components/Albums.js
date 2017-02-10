@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 
 const Albums = (props) => {
 
-  const albums = props.albums;
+  const albums = props.albums.list;
   const selectAlbum = props.selectAlbum;
 
   return (

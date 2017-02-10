@@ -12,6 +12,7 @@ import Player from '../components/Player';
 import store from '../store';
 import {play, pause, load, next, prev, startSong, setProgress} from '../action-creators/player';
 import {fetchSongs} from '../action-creators/songs';
+import {fetchAlbums, fetchAlbum} from '../action-creators/albums';
 
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 
@@ -25,19 +26,19 @@ export default class AppContainer extends Component {
     this.toggleOne = this.toggleOne.bind(this);
     this.next = () => store.dispatch(next());
     this.prev = () => store.dispatch(prev());
-    this.selectAlbum = this.selectAlbum.bind(this);
+    this.selectAlbum = (albumId) => store.dispatch(fetchAlbum(albumId));
     this.selectArtist = this.selectArtist.bind(this);
     this.addPlaylist = this.addPlaylist.bind(this);
     this.selectPlaylist = this.selectPlaylist.bind(this);
-    this.loadSongs = this.loadSongs.bind(this);
+    this.loadSongs = () => store.dispatch(fetchSongs());
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
   }
 
   componentDidMount () {
 
+    store.dispatch(fetchAlbums());
     Promise
       .all([
-        axios.get('/api/albums/'),
         axios.get('/api/artists/'),
         axios.get('/api/playlists')
       ])
@@ -58,9 +59,8 @@ export default class AppContainer extends Component {
     this.unsubscribe();
   }
 
-  onLoad (albums, artists, playlists) {
+  onLoad (artists, playlists) {
     this.setState({
-      albums: convertAlbums(albums),
       artists: artists,
       playlists: playlists
     });
@@ -75,14 +75,6 @@ export default class AppContainer extends Component {
   toggle () {
     if (this.state.player.isPlaying) store.dispatch(pause());
     else store.dispatch(play());
-  }
-
-  selectAlbum (albumId) {
-    axios.get(`/api/albums/${albumId}`)
-      .then(res => res.data)
-      .then(album => this.setState({
-        selectedAlbum: convertAlbum(album)
-      }));
   }
 
   selectArtist (artistId) {
@@ -126,10 +118,6 @@ export default class AppContainer extends Component {
           selectedPlaylist: playlist
         });
       });
-  }
-
-  loadSongs () {
-    store.dispatch(fetchSongs())
   }
 
   addSongToPlaylist (playlistId, songId) {
