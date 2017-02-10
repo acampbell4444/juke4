@@ -33,6 +33,7 @@
     "react-dom": "^15.3.2",
     "react-router": "^3.0.0",
     "redux": "^3.6.0",
+    "redux-thunk": "^2.2.0",
     "request": "^2.74.0",
     "sequelize": "^3.24.1",
     "serve-favicon": "^2.2.0",
@@ -46,6 +47,9 @@
     "babel-preset-react": "^6.22.0",
     "chai": "3.5.0",
     "chai-spies": "0.7.1",
+    "eslint": "^3.15.0",
+    "eslint-config-fullstack": "^2.7.0",
+    "eslint-plugin-react": "^6.9.0",
     "mocha": "^2.5.1",
     "testem": "1.2.2",
     "webpack": "^2.2.1"
