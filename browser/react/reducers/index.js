@@ -3,6 +3,7 @@ import {lyricsReducer} from './lyrics-reducer';
 import {playerReducer} from './player-reducer';
 import {songsReducer} from './songs-reducer';
 import {albumsReducer} from './albums-reducer';
+import {artistsReducer} from './artists-reducer';
 
 /*
   {
@@ -22,5 +23,6 @@ export const reducers = combineReducers({
   lyrics: lyricsReducer,
   player: playerReducer,
   songs: songsReducer,
-  albums: albumsReducer
+  albums: albumsReducer,
+  artists: artistsReducer
 });

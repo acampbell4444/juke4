@@ -13,6 +13,7 @@ import store from '../store';
 import {play, pause, load, next, prev, startSong, setProgress} from '../action-creators/player';
 import {fetchSongs} from '../action-creators/songs';
 import {fetchAlbums, fetchAlbum} from '../action-creators/albums';
+import {fetchArtists, fetchArtist} from '../action-creators/artists';
 
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 
@@ -37,9 +38,9 @@ export default class AppContainer extends Component {
   componentDidMount () {
 
     store.dispatch(fetchAlbums());
+    store.dispatch(fetchArtists());
     Promise
       .all([
-        axios.get('/api/artists/'),
         axios.get('/api/playlists')
       ])
       .then(res => res.map(r => r.data))
@@ -59,9 +60,8 @@ export default class AppContainer extends Component {
     this.unsubscribe();
   }
 
-  onLoad (artists, playlists) {
+  onLoad ( playlists) {
     this.setState({
-      artists: artists,
       playlists: playlists
     });
   }
@@ -78,14 +78,7 @@ export default class AppContainer extends Component {
   }
 
   selectArtist (artistId) {
-    Promise
-      .all([
-        axios.get(`/api/artists/${artistId}`),
-        axios.get(`/api/artists/${artistId}/albums`),
-        axios.get(`/api/artists/${artistId}/songs`)
-      ])
-      .then(res => res.map(r => r.data))
-      .then(data => this.onLoadArtist(...data));
+    store.dispatch(fetchArtist(artistId))
   }
 
   onLoadArtist (artist, albums, songs) {

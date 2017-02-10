@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 
 const Artists = (props) => {
 
-  const artists = props.artists;
+  const artists = props.artists.list;
 
   return (
     <div>
