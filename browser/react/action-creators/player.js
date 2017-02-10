@@ -35,10 +35,7 @@ export function setList (list) {
 
 export function play() {
   return (dispatch) => {
-    console.log(AUDIO.src);
     AUDIO.play();
-    console.log(AUDIO.playing);
-    window.AUDIO = AUDIO
     dispatch(startPlaying());
   }
 }
