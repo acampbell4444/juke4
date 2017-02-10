@@ -18,6 +18,9 @@ sidebar {
   width: inherit;
   overflow-y: auto;
   border-right: 2px solid #555; }
+  sidebar .playlist-item {
+  margin-left: 10px;
+  padding-left:10px; }
   sidebar::-webkit-scrollbar{
     width: 10px;
     background-color: #222; }
