@@ -1,5 +1,5 @@
 import {createStore, applyMiddleware} from 'redux';
-import reducer from './reducers/root-reducer';
+import {reducers} from './reducers';
 import thunkMiddleware from 'redux-thunk';
 
 const composeEnhancers =
@@ -9,6 +9,6 @@ const composeEnhancers =
       // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
     }) : compose;
 
-//export default createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-//export default createStore(reducer, applyMiddleware(createLogger()));
-export default createStore(reducer, composeEnhancers(applyMiddleware(thunkMiddleware)));
+//export default createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+//export default createStore(reducers, applyMiddleware(createLogger()));
+export default createStore(reducers, composeEnhancers(applyMiddleware(thunkMiddleware)));

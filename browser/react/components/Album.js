@@ -12,8 +12,7 @@ class Album extends React.Component {
 
   render () {
     const album = this.props.selectedAlbum;
-    const currentSong = this.props.currentSong;
-    const isPlaying = this.props.isPlaying;
+    const player = this.props.player;
     const toggleOne = this.props.toggleOne;
 
     return (
@@ -24,8 +23,7 @@ class Album extends React.Component {
         </div>
         <Songs
           songs={album.songs}
-          currentSong={currentSong}
-          isPlaying={isPlaying}
+          player={player}
           toggleOne={toggleOne} />
       </div>
     );

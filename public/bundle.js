@@ -4607,10 +4607,9 @@ var _react2 = _interopRequireDefault(_react);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Songs = function Songs(props) {
-
   var songs = props.songs;
-  var currentSong = props.currentSong;
-  var isPlaying = props.isPlaying;
+  var currentSong = props.player.currentSong;
+  var isPlaying = props.player.isPlaying;
   var toggle = props.toggleOne;
 
   return _react2.default.createElement(
@@ -8901,8 +8900,7 @@ var Album = function (_React$Component) {
     key: 'render',
     value: function render() {
       var album = this.props.selectedAlbum;
-      var currentSong = this.props.currentSong;
-      var isPlaying = this.props.isPlaying;
+      var player = this.props.player;
       var toggleOne = this.props.toggleOne;
 
       return _react2.default.createElement(
@@ -8920,8 +8918,7 @@ var Album = function (_React$Component) {
         ),
         _react2.default.createElement(_Songs2.default, {
           songs: album.songs,
-          currentSong: currentSong,
-          isPlaying: isPlaying,
+          player: player,
           toggleOne: toggleOne })
       );
     }
@@ -13179,6 +13176,12 @@ var _Player = __webpack_require__(149);
 
 var _Player2 = _interopRequireDefault(_Player);
 
+var _store = __webpack_require__(285);
+
+var _store2 = _interopRequireDefault(_store);
+
+var _player = __webpack_require__(314);
+
 var _utils = __webpack_require__(153);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -13199,7 +13202,7 @@ var AppContainer = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (AppContainer.__proto__ || Object.getPrototypeOf(AppContainer)).call(this, props));
 
-    _this.state = _initialState2.default;
+    _this.state = Object.assign(_initialState2.default, _store2.default.getState());
 
     _this.toggle = _this.toggle.bind(_this);
     _this.toggleOne = _this.toggleOne.bind(_this);
@@ -13233,6 +13236,15 @@ var AppContainer = function (_Component) {
       _audio2.default.addEventListener('timeupdate', function () {
         return _this2.setProgress(_audio2.default.currentTime / _audio2.default.duration);
       });
+
+      this.unsubscribe = _store2.default.subscribe(function () {
+        _this2.setState(_store2.default.getState());
+      });
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.unsubscribe();
     }
   }, {
     key: 'onLoad',
@@ -13246,51 +13258,42 @@ var AppContainer = function (_Component) {
   }, {
     key: 'play',
     value: function play() {
-      _audio2.default.play();
-      this.setState({ isPlaying: true });
+      _store2.default.dispatch((0, _player.play)());
     }
   }, {
     key: 'pause',
     value: function pause() {
-      _audio2.default.pause();
-      this.setState({ isPlaying: false });
+      _store2.default.dispatch((0, _player.pause)());
     }
   }, {
     key: 'load',
     value: function load(currentSong, currentSongList) {
-      _audio2.default.src = currentSong.audioUrl;
-      _audio2.default.load();
-      this.setState({
-        currentSong: currentSong,
-        currentSongList: currentSongList
-      });
-    }
-  }, {
-    key: 'startSong',
-    value: function startSong(song, list) {
-      this.pause();
-      this.load(song, list);
-      this.play();
-    }
-  }, {
-    key: 'toggleOne',
-    value: function toggleOne(selectedSong, selectedSongList) {
-      if (selectedSong.id !== this.state.currentSong.id) this.startSong(selectedSong, selectedSongList);else this.toggle();
-    }
-  }, {
-    key: 'toggle',
-    value: function toggle() {
-      if (this.state.isPlaying) this.pause();else this.play();
+      _store2.default.dispatch((0, _player.load)(currentSong, currentSongList));
     }
   }, {
     key: 'next',
     value: function next() {
-      this.startSong.apply(this, _toConsumableArray((0, _utils.skip)(1, this.state)));
+      _store2.default.dispatch((0, _player.next)());
     }
   }, {
     key: 'prev',
     value: function prev() {
-      this.startSong.apply(this, _toConsumableArray((0, _utils.skip)(-1, this.state)));
+      _store2.default.dispatch((0, _player.prev)());
+    }
+  }, {
+    key: 'startSong',
+    value: function startSong(song, list) {
+      _store2.default.dispatch((0, _player.startSong)(song, list));
+    }
+  }, {
+    key: 'toggleOne',
+    value: function toggleOne(selectedSong, selectedSongList) {
+      if (selectedSong.id !== this.state.player.currentSong.id) this.startSong(selectedSong, selectedSongList);else this.toggle();
+    }
+  }, {
+    key: 'toggle',
+    value: function toggle() {
+      if (this.state.player.isPlaying) this.pause();else this.play();
     }
   }, {
     key: 'setProgress',
@@ -13426,9 +13429,9 @@ var AppContainer = function (_Component) {
           this.props.children && _react2.default.cloneElement(this.props.children, props)
         ),
         _react2.default.createElement(_Player2.default, {
-          currentSong: this.state.currentSong,
-          currentSongList: this.state.currentSongList,
-          isPlaying: this.state.isPlaying,
+          currentSong: this.state.player.currentSong,
+          currentSongList: this.state.player.currentSongList,
+          isPlaying: this.state.player.isPlaying,
           progress: this.state.progress,
           next: this.next,
           prev: this.prev,
@@ -15015,9 +15018,6 @@ var initialState = {
   artists: [],
   selectedAlbum: {},
   selectedArtist: {},
-  currentSong: {},
-  currentSongList: [],
-  isPlaying: false,
   progress: 0,
   playlists: [],
   selectedPlaylist: {},
@@ -30171,7 +30171,7 @@ var LyricsContainer = function (_React$Component) {
     value: function render() {
 
       return _react2.default.createElement(_Lyrics.Lyrics, {
-        text: this.state.text,
+        text: this.state.lyrics.text,
         setArtist: this.handleArtistInput,
         setSong: this.handleSongInput,
         artistQuery: this.state.artistQuery,
@@ -30196,37 +30196,33 @@ exports.default = LyricsContainer;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+// Lyrics
 var SET_LYRICS = exports.SET_LYRICS = 'SET_LYRICS';
 
-/***/ }),
-/* 284 */
-/***/ (function(module, exports, __webpack_require__) {
+// Albums
+var RECEIVE_ALBUMS = exports.RECEIVE_ALBUMS = 'RECEIVE_ALBUMS';
+var RECEIVE_ALBUM = exports.RECEIVE_ALBUM = 'RECEIVE_ALBUM';
 
-"use strict";
+// Artists
+var RECEIVE_ARTISTS = exports.RECEIVE_ARTISTS = 'RECEIVE_ARTISTS';
+var RECEIVE_ARTIST = exports.RECEIVE_ARTIST = 'RECEIVE_ARTIST';
 
+// Playlists
+var RECEIVE_PLAYLISTS = exports.RECEIVE_PLAYLISTS = 'RECEIVE_PLAYLISTS';
+var RECEIVE_PLAYLIST = exports.RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = reducer;
+// Songs
+var RECEIVE_SONGS = exports.RECEIVE_SONGS = 'RECEIVE_SONGS';
 
-var _constants = __webpack_require__(283);
-
-var initialState = { text: '' };
-
-function reducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments[1];
-
-  switch (action.type) {
-    case _constants.SET_LYRICS:
-      return Object.assign({}, state, { text: action.lyric });
-    default:
-      return state;
-  }
-}
+// Player
+var START_PLAYING = exports.START_PLAYING = 'START_PLAYING';
+var STOP_PLAYING = exports.STOP_PLAYING = 'STOP_PLAYING';
+var SET_CURRENT_SONG = exports.SET_CURRENT_SONG = 'SET_CURRENT_SONG';
+var SET_LIST = exports.SET_LIST = 'SET_LIST';
+var SET_PROGRESS = exports.SET_PROGRESS = 'SET_PROGRESS';
 
 /***/ }),
+/* 284 */,
 /* 285 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -30241,9 +30237,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _redux = __webpack_require__(297);
 
-var _rootReducer = __webpack_require__(284);
-
-var _rootReducer2 = _interopRequireDefault(_rootReducer);
+var _reducers = __webpack_require__(312);
 
 var _reduxThunk = __webpack_require__(310);
 
@@ -30255,9 +30249,9 @@ var composeEnhancers = (typeof window === 'undefined' ? 'undefined' : _typeof(wi
   // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
 }) : compose;
 
-//export default createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
-//export default createStore(reducer, applyMiddleware(createLogger()));
-exports.default = (0, _redux.createStore)(_rootReducer2.default, composeEnhancers((0, _redux.applyMiddleware)(_reduxThunk2.default)));
+//export default createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+//export default createStore(reducers, applyMiddleware(createLogger()));
+exports.default = (0, _redux.createStore)(_reducers.reducers, composeEnhancers((0, _redux.applyMiddleware)(_reduxThunk2.default)));
 
 /***/ }),
 /* 286 */
@@ -30994,6 +30988,234 @@ var thunk = createThunkMiddleware();
 thunk.withExtraArgument = createThunkMiddleware;
 
 exports['default'] = thunk;
+
+/***/ }),
+/* 311 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.lyricsReducer = lyricsReducer;
+
+var _constants = __webpack_require__(283);
+
+var initialState = { text: '' };
+
+function lyricsReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments[1];
+
+  switch (action.type) {
+    case _constants.SET_LYRICS:
+      return Object.assign({}, state, { text: action.lyric });
+    default:
+      return state;
+  }
+}
+
+/***/ }),
+/* 312 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.reducers = undefined;
+
+var _redux = __webpack_require__(297);
+
+var _lyricsReducer = __webpack_require__(311);
+
+var _playerReducer = __webpack_require__(313);
+
+/*
+  {
+    lyrics: {
+      text: ''
+    },
+    player: {
+      currentSong: {},
+      currentSongList: [],
+      isPlaying: false,
+      progress: 0
+    }
+  }
+ */
+
+var reducers = exports.reducers = (0, _redux.combineReducers)({
+  lyrics: _lyricsReducer.lyricsReducer,
+  player: _playerReducer.playerReducer
+});
+
+/***/ }),
+/* 313 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.playerReducer = playerReducer;
+
+var _constants = __webpack_require__(283);
+
+var initialState = {
+  currentSong: {},
+  currentSongList: [],
+  isPlaying: false,
+  progress: 0
+};
+
+function playerReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments[1];
+
+
+  var newState = Object.assign({}, state);
+
+  switch (action.type) {
+
+    case _constants.START_PLAYING:
+      newState.isPlaying = true;
+      break;
+
+    case _constants.STOP_PLAYING:
+      newState.isPlaying = false;
+      break;
+
+    case _constants.SET_CURRENT_SONG:
+      newState.currentSong = action.song;
+      break;
+
+    case _constants.SET_LIST:
+      newState.currentSongList = action.list;
+      break;
+
+    default:
+      return state;
+
+  }
+
+  return newState;
+}
+
+/***/ }),
+/* 314 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.startPlaying = startPlaying;
+exports.stopPlaying = stopPlaying;
+exports.setCurrentSong = setCurrentSong;
+exports.setList = setList;
+exports.play = play;
+exports.pause = pause;
+exports.load = load;
+exports.startSong = startSong;
+exports.next = next;
+exports.prev = prev;
+
+var _constants = __webpack_require__(283);
+
+var _audio = __webpack_require__(144);
+
+var _audio2 = _interopRequireDefault(_audio);
+
+var _utils = __webpack_require__(153);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function startPlaying() {
+  return {
+    type: _constants.START_PLAYING
+  };
+}
+
+function stopPlaying() {
+  return {
+    type: _constants.STOP_PLAYING
+  };
+}
+
+function setCurrentSong(song) {
+  return {
+    type: _constants.SET_CURRENT_SONG,
+    song: song
+  };
+}
+
+function setList(list) {
+  return {
+    type: _constants.SET_LIST,
+    list: list
+  };
+}
+
+function play() {
+  return function (dispatch) {
+    console.log(_audio2.default.src);
+    _audio2.default.play();
+    console.log(_audio2.default.playing);
+    window.AUDIO = _audio2.default;
+    dispatch(startPlaying());
+  };
+}
+
+function pause() {
+  return function (dispatch) {
+    _audio2.default.pause();
+    dispatch(stopPlaying());
+  };
+}
+
+function load(currentSong, currentSongList) {
+  return function (dispatch) {
+    _audio2.default.src = currentSong.audioUrl;
+    _audio2.default.load();
+    dispatch(setCurrentSong(currentSong));
+    dispatch(setList(currentSongList));
+  };
+}
+
+function startSong(song, list) {
+  return function (dispatch) {
+    dispatch(pause());
+    dispatch(load(song, list));
+    dispatch(play());
+  };
+}
+
+function next() {
+  var _this = this;
+
+  return function (dispatch) {
+    dispatch(startSong.apply(undefined, _toConsumableArray((0, _utils.skip)(1, _this.state))));
+  };
+}
+
+function prev() {
+  var _this2 = this;
+
+  return function (dispatch) {
+    dispatch(startSong.apply(undefined, _toConsumableArray((0, _utils.skip)(-1, _this2.state))));
+  };
+}
 
 /***/ })
 /******/ ]);
