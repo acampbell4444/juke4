@@ -30095,10 +30095,6 @@ var _react = __webpack_require__(3);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _axios = __webpack_require__(77);
-
-var _axios2 = _interopRequireDefault(_axios);
-
 var _store = __webpack_require__(285);
 
 var _store2 = _interopRequireDefault(_store);
@@ -30166,12 +30162,9 @@ var LyricsContainer = function (_React$Component) {
     key: 'handleSubmit',
     value: function handleSubmit(e) {
       e.preventDefault();
-      _axios2.default.get('/api/lyrics/' + this.state.artistQuery + '/' + this.state.songQuery).then(function (response) {
-        return response.data.lyric;
-      }).then(function (lyric) {
-        return _store2.default.dispatch((0, _lyrics.setLyrics)(lyric));
-      }).catch(console.error.bind(console));
-      console.log('state', this.state);
+      if (this.state.artistQuery && this.state.songQuery) {
+        _store2.default.dispatch((0, _lyrics.fetchLyrics)(this.state.artistQuery, this.state.songQuery));
+      }
     }
   }, {
     key: 'render',
@@ -30254,6 +30247,8 @@ var _rootReducer2 = _interopRequireDefault(_rootReducer);
 
 var _reduxThunk = __webpack_require__(310);
 
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var composeEnhancers = (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
@@ -30262,7 +30257,7 @@ var composeEnhancers = (typeof window === 'undefined' ? 'undefined' : _typeof(wi
 
 //export default createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 //export default createStore(reducer, applyMiddleware(createLogger()));
-exports.default = (0, _redux.createStore)(_rootReducer2.default, composeEnhancers((0, _redux.applyMiddleware)(_reduxThunk.thunkMiddleware)));
+exports.default = (0, _redux.createStore)(_rootReducer2.default, composeEnhancers((0, _redux.applyMiddleware)(_reduxThunk2.default)));
 
 /***/ }),
 /* 286 */
@@ -30940,15 +30935,30 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.setLyrics = setLyrics;
+exports.fetchLyrics = fetchLyrics;
 
 var _constants = __webpack_require__(283);
+
+var _axios = __webpack_require__(77);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function setLyrics(text) {
   return {
     type: _constants.SET_LYRICS,
     lyric: text
   };
-};
+}
+
+function fetchLyrics(artist, song) {
+  return function (dispatch, getState) {
+    _axios2.default.get('/api/lyrics/' + artist + '/' + song).then(function (res) {
+      dispatch(setLyrics(res.data.lyric));
+    });
+  };
+}
 
 /***/ }),
 /* 304 */,
