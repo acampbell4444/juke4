@@ -22,8 +22,8 @@ export default class AppContainer extends Component {
 
     this.toggle = this.toggle.bind(this);
     this.toggleOne = this.toggleOne.bind(this);
-    this.next = this.next.bind(this);
-    this.prev = this.prev.bind(this);
+    this.next = () => store.dispatch(next());
+    this.prev = () => store.dispatch(prev());
     this.selectAlbum = this.selectAlbum.bind(this);
     this.selectArtist = this.selectArtist.bind(this);
     this.addPlaylist = this.addPlaylist.bind(this);
@@ -65,39 +65,15 @@ export default class AppContainer extends Component {
     });
   }
 
-  play () {
-    store.dispatch(play());
-  }
-
-  pause () {
-    store.dispatch(pause());
-  }
-
-  load (currentSong, currentSongList) {
-    store.dispatch(load(currentSong, currentSongList));
-  }
-
-  next () {
-    store.dispatch(next());
-  }
-
-  prev () {
-    store.dispatch(prev());
-  }
-
-  startSong (song, list) {
-    store.dispatch(startSong(song, list));
-  }
-
   toggleOne (selectedSong, selectedSongList) {
     if (selectedSong.id !== this.state.player.currentSong.id)
-      this.startSong(selectedSong, selectedSongList);
+      store.dispatch(startSong(selectedSong, selectedSongList));
     else this.toggle();
   }
 
   toggle () {
-    if (this.state.player.isPlaying) this.pause();
-    else this.play();
+    if (this.state.player.isPlaying) store.dispatch(pause());
+    else store.dispatch(play());
   }
 
   setProgress (progress) {
