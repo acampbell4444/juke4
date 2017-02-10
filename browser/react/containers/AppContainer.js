@@ -11,6 +11,7 @@ import Sidebar from '../components/Sidebar';
 import Player from '../components/Player';
 import store from '../store';
 import {play, pause, load, next, prev, startSong, setProgress} from '../action-creators/player';
+import {fetchSongs} from '../action-creators/songs';
 
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 
@@ -127,14 +128,8 @@ export default class AppContainer extends Component {
       });
   }
 
-  loadSongs (songs) {
-    axios.get('/api/songs')
-      .then(res => res.data)
-      .then(songs => {
-        this.setState({
-          songs: songs
-        });
-      });
+  loadSongs () {
+    store.dispatch(fetchSongs())
   }
 
   addSongToPlaylist (playlistId, songId) {

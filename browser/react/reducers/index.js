@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux';
 import {lyricsReducer} from './lyrics-reducer';
 import {playerReducer} from './player-reducer';
+import {songsReducer} from './songs-reducer';
 
 /*
   {
@@ -18,5 +19,6 @@ import {playerReducer} from './player-reducer';
 
 export const reducers = combineReducers({
   lyrics: lyricsReducer,
-  player: playerReducer
+  player: playerReducer,
+  songs: songsReducer
 });

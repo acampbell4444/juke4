@@ -3,7 +3,7 @@ import Songs from './Songs';
 
 const AddSong = (props) => {
 
-  const songs = props.songs;
+  const songs = props.songs.songs;
   const error = props.error;
   const handleChange = props.handleChange;
   const handleSubmit = props.handleSubmit;
